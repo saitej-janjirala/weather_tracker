@@ -1,4 +1,4 @@
-# Fetch-TASK 📝
+# WEATHER-TRACKER 📝
 
 This is Weather Tracking app built with Jetpack Compose UI Toolkit.
 

@@ -18,7 +18,7 @@ This is Weather Tracking app built with Jetpack Compose UI Toolkit.
     - **Hilt-ViewModel**: Dependency injection for ViewModel.
 - **Material Components for Android**: Modular and customizable UI components following Material Design guidelines.
 - **Moshi**: A modern JSON library for Android and Java, used for parsing JSON into Java/Kotlin objects and serializing Java/Kotlin objects into JSON.
-
+- **Testing**: This Projects includes Unit Tests for the ViewModel and the Repositories Implemented using Junit and MocKK.
 ## Architecture 👷‍♂️
 
 This App follows combination of  MVVM (Model-View-ViewModel) architecture and Clean Architecture pattern, providing a robust and maintainable structure for the app.

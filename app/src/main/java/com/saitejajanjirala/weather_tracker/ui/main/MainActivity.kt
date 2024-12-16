@@ -97,12 +97,15 @@ fun MainScreen(viewModel: MainViewModel,modifier: Modifier){
                 NoCitySelected()
             }
             is Result.Error -> {
+                var message = state.m
+                if(message.isNullOrBlank()){
+                    message = "Unknown Error Try Again"
+                }
                 Text(
-                    text = state.m ?: "Unknown error",
+                    text = message,
                     fontSize = 18.sp,
                     color = Color.Red,
                 )
-
             }
             is Result.Loading ->{
                 if(state.loading){

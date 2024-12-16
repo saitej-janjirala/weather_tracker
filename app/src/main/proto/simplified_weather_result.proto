@@ -1,0 +1,13 @@
+syntax = "proto3";
+
+option java_package = "com.saitejajanjirala.weather_tracker";
+option java_multiple_files = true;
+
+message SimplifiedWeatherResultProto {
+  string location_name = 1;
+  double temp_c = 2;
+  double feelslike_c = 3;
+  int32 humidity = 4;
+  double uv = 5;
+  string icon = 6;
+}

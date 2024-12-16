@@ -22,7 +22,7 @@ This is Weather Tracking app built with Jetpack Compose UI Toolkit.
 ## Architecture 👷‍♂️
 
 This App follows combination of  MVVM (Model-View-ViewModel) architecture and Clean Architecture pattern, providing a robust and maintainable structure for the app.
-![MVVM](media/arch.png)
+![MVVM](media/img.png)
 
 ## Screenshots
 

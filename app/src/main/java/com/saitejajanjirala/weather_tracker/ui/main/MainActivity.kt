@@ -19,6 +19,8 @@ import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.size
 import androidx.compose.foundation.layout.width
+import androidx.compose.foundation.lazy.LazyColumn
+import androidx.compose.foundation.lazy.items
 import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.foundation.text.BasicTextField
 import androidx.compose.foundation.text.KeyboardActions
@@ -52,6 +54,7 @@ import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import coil.compose.AsyncImage
 import com.saitejajanjirala.weather_tracker.R
+import com.saitejajanjirala.weather_tracker.domain.models.remote.SearchResultItem
 import com.saitejajanjirala.weather_tracker.domain.models.util.Result
 import com.saitejajanjirala.weather_tracker.domain.models.util.SimplifiedWeatherResult
 import com.saitejajanjirala.weather_tracker.ui.theme.Weather_trackerTheme
@@ -87,11 +90,15 @@ fun MainScreen(viewModel: MainViewModel,modifier: Modifier){
         horizontalAlignment = Alignment.CenterHorizontally
     ) {
         val state by viewModel.state.collectAsState()
+        val searchCities by viewModel.searchItems.collectAsState()
+        val query by viewModel._searchQuery.collectAsState()
         val currentResult by viewModel.isCurrentResult.collectAsState()
         val focusManager = LocalFocusManager.current
         CustomSearchBar(viewModel, focusManager)
-
         Spacer(modifier = Modifier.height(16.dp))
+        if(query.isNotEmpty()) {
+            SearchCities(searchCities, viewModel)
+        }
         when(state){
             is Result.Empty -> {
                 NoCitySelected()
@@ -125,6 +132,38 @@ fun MainScreen(viewModel: MainViewModel,modifier: Modifier){
             }
         }
 
+    }
+}
+
+
+@Composable
+fun SearchCities(searchCities : Result<List<SearchResultItem>>,viewModel: MainViewModel){
+
+    when(searchCities){
+        is Result.Empty -> {
+            Text(text = "No Results Found")
+        }
+        is Result.Error -> {
+            Text(text = searchCities.m?:"Unknown error occured")
+        }
+        is Result.Loading -> {
+            if(searchCities.loading) {
+                CircularProgressIndicator()
+            }
+        }
+        is Result.Success -> {
+            LazyColumn {
+                items(searchCities.data){searchItem->
+                    Column (Modifier.padding(8.dp).clickable {
+                        viewModel.search(searchItem.name?:"a")
+                    }){
+                        Text(text = searchItem.name?:"N/A", fontSize = 20.sp)
+                        Spacer(Modifier.height(8.dp))
+                        Text(text = searchItem.country?:"N/A", fontSize = 16.sp)
+                    }
+                }
+            }
+        }
     }
 }
 
@@ -282,7 +321,7 @@ fun NoCitySelected(){
 
 @Composable
 fun CustomSearchBar(viewModel: MainViewModel, focusManager: FocusManager) {
-    val searchQuery = viewModel.searchQuery
+    val searchQuery by  viewModel._searchQuery.collectAsState()
     Spacer(Modifier.height(24.dp))
     Box(
         modifier = Modifier
@@ -313,7 +352,7 @@ fun CustomSearchBar(viewModel: MainViewModel, focusManager: FocusManager) {
                 keyboardActions = KeyboardActions(
                     onSearch = {
                         focusManager.clearFocus()
-                        viewModel.search()
+//                        viewModel.search()
                     }
                 ),
                 decorationBox = { innerTextField ->
@@ -330,7 +369,6 @@ fun CustomSearchBar(viewModel: MainViewModel, focusManager: FocusManager) {
                 tint = Color.Gray,
                 modifier = Modifier.clickable {
                     focusManager.clearFocus()
-                    viewModel.search()
                 }
             )
         }

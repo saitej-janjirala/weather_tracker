@@ -1,6 +1,7 @@
 package com.saitejajanjirala.weather_tracker.di
 
 import android.content.Context
+import com.saitejajanjirala.weather_tracker.BuildConfig
 import com.saitejajanjirala.weather_tracker.data.local.DataStoreManager
 import com.saitejajanjirala.weather_tracker.data.remote.ApiService
 import com.saitejajanjirala.weather_tracker.util.Util
@@ -30,7 +31,7 @@ object AppModule {
             val request = chain.request()
             val url = request.url
             val newUrl = url.newBuilder()
-                .addQueryParameter("Key","a34ab679c2d849978f8155944241412")
+                .addQueryParameter("Key",BuildConfig.API_KEY)
                 .build()
             val newRequest = request.newBuilder()
                 .url(newUrl)

@@ -24,8 +24,12 @@ protobuf {
 android {
     namespace = "com.saitejajanjirala.weather_tracker"
     compileSdk = 35
+    buildFeatures {
+        buildConfig = true
+    }
 
     defaultConfig {
+        buildConfigField ("String", "API_KEY", "\"a34ab679c2d849978f8155944241412\"")
         applicationId = "com.saitejajanjirala.weather_tracker"
         minSdk = 24
         targetSdk = 35

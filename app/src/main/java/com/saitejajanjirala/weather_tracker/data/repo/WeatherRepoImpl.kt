@@ -3,6 +3,7 @@ package com.saitejajanjirala.weather_tracker.data.repo
 import com.saitejajanjirala.weather_tracker.data.local.DataStoreManager
 import com.saitejajanjirala.weather_tracker.data.remote.ApiService
 import com.saitejajanjirala.weather_tracker.di.NoInternetException
+import com.saitejajanjirala.weather_tracker.domain.models.remote.SearchResultItem
 import com.saitejajanjirala.weather_tracker.domain.models.util.Result
 import com.saitejajanjirala.weather_tracker.domain.models.util.SimplifiedWeatherResult
 import com.saitejajanjirala.weather_tracker.domain.repo.WeatherRepo
@@ -26,7 +27,6 @@ class WeatherRepoImpl  @Inject constructor(
             val weatherResult = response.body()
             if(weatherResult!=null){
                 val simplifiedWeatherResult = weatherResult.mapToSimplifiedWeatherResult()
-                dataStoreManager.saveWeather(simplifiedWeatherResult.toProtoModel())
                 emit(Result.Success(simplifiedWeatherResult))
             }else{
                 emit(Result.Empty())
@@ -59,5 +59,28 @@ class WeatherRepoImpl  @Inject constructor(
         }
 
         emit(Result.Loading(false))
+    }
+
+    override suspend fun saveWeatherToLocal(simplifiedWeatherResult: SimplifiedWeatherResult){
+        dataStoreManager.saveWeather(simplifiedWeatherResult.toProtoModel())
+
+    }
+
+    override suspend fun getSearchResults(key: String): Flow<Result<List<SearchResultItem>>> =flow<Result<List<SearchResultItem>>> {
+        emit(Result.Loading(true))
+        val res = apiService.getSearchResults(key)
+        val data  = res.body()
+        if (data != null && data.isNotEmpty()) {
+            emit(Result.Success(data))
+        } else {
+            emit(Result.Error("No results found"))
+        }
+
+    }.catch {
+        e->
+        when (e) {
+            is NoInternetException -> emit(Result.Error(e.message ?: "No Internet Connection"))
+            else -> emit(Result.Error(e.message ?: "An unknown error occurred"))
+        }
     }
 }

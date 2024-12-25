@@ -10,17 +10,21 @@ import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.launch
 import com.saitejajanjirala.weather_tracker.domain.models.util.Result
 import com.saitejajanjirala.weather_tracker.domain.models.util.SimplifiedWeatherResult
+import kotlinx.coroutines.ExperimentalCoroutinesApi
 import kotlinx.coroutines.FlowPreview
 import kotlinx.coroutines.flow.Flow
 import kotlinx.coroutines.flow.StateFlow
 import kotlinx.coroutines.flow.debounce
+import kotlinx.coroutines.flow.distinctUntilChanged
 import kotlinx.coroutines.flow.flatMapLatest
+import kotlinx.coroutines.flow.flowOf
 import javax.inject.Inject
 
+@OptIn(ExperimentalCoroutinesApi::class, FlowPreview::class)
 @HiltViewModel
 class MainViewModel  @Inject constructor(private val weatherRepo: WeatherRepo): ViewModel() {
-    val _searchQuery = MutableStateFlow("")
-    private val searchQuery : StateFlow<String>
+    private val _searchQuery = MutableStateFlow("")
+    val searchQuery : StateFlow<String>
         get() = _searchQuery
 
     private val _searchItems =  MutableStateFlow<Result<List<SearchResultItem>>>(Result.Loading(false))
@@ -39,6 +43,21 @@ class MainViewModel  @Inject constructor(private val weatherRepo: WeatherRepo): 
                 _state.value = it
             }
         }
+        viewModelScope.launch {
+            searchQuery.debounce(300)
+                .distinctUntilChanged()
+                .flatMapLatest {
+                    if(it.isBlank()){
+                        flowOf(Result.Loading(false))
+                    }
+                    else{
+                        weatherRepo.getSearchResults(it)
+                    }
+                }
+                .collect {
+                    _searchItems.value = it
+                }
+        }
 
     }
     fun search(city:String) {
@@ -51,22 +70,11 @@ class MainViewModel  @Inject constructor(private val weatherRepo: WeatherRepo): 
         }
     }
 
-    @OptIn(FlowPreview::class)
     fun onNewSearchQuery(newQuery: String) {
         _searchQuery.value = newQuery
-        viewModelScope.launch {
-            searchQuery.debounce(300)
-                .collect {
-                    getCities(it)
-                }
-        }
+
     }
 
-    suspend fun getCities(key:String){
-        weatherRepo.getSearchResults(key).collect{
-            _searchItems.value = it
-        }
-    }
 
     fun showSaved(){
         _isCurrentResult.value = false

@@ -28,7 +28,6 @@ import androidx.compose.foundation.text.KeyboardOptions
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.filled.Search
 import androidx.compose.material3.CircularProgressIndicator
-import androidx.compose.material3.ColorScheme
 import androidx.compose.material3.Icon
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.Scaffold
@@ -37,7 +36,6 @@ import androidx.compose.material3.Typography
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.collectAsState
 import androidx.compose.runtime.getValue
-import androidx.compose.runtime.saveable.rememberSaveable
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.clip
@@ -49,7 +47,6 @@ import androidx.compose.ui.text.TextStyle
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.text.input.ImeAction
 import androidx.compose.ui.text.style.TextAlign
-import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import coil.compose.AsyncImage
@@ -91,10 +88,10 @@ fun MainScreen(viewModel: MainViewModel,modifier: Modifier){
     ) {
         val state by viewModel.state.collectAsState()
         val searchCities by viewModel.searchItems.collectAsState()
-        val query by viewModel._searchQuery.collectAsState()
+        val query by viewModel.searchQuery.collectAsState()
         val currentResult by viewModel.isCurrentResult.collectAsState()
         val focusManager = LocalFocusManager.current
-        CustomSearchBar(viewModel, focusManager)
+        CustomSearchBar(viewModel, focusManager,query)
         Spacer(modifier = Modifier.height(16.dp))
         if(query.isNotEmpty()) {
             SearchCities(searchCities, viewModel)
@@ -320,8 +317,8 @@ fun NoCitySelected(){
 }
 
 @Composable
-fun CustomSearchBar(viewModel: MainViewModel, focusManager: FocusManager) {
-    val searchQuery by  viewModel._searchQuery.collectAsState()
+fun CustomSearchBar(viewModel: MainViewModel, focusManager: FocusManager, searchQuery: String) {
+
     Spacer(Modifier.height(24.dp))
     Box(
         modifier = Modifier

@@ -69,11 +69,17 @@ class WeatherRepoImpl  @Inject constructor(
     override suspend fun getSearchResults(key: String): Flow<Result<List<SearchResultItem>>> =flow<Result<List<SearchResultItem>>> {
         emit(Result.Loading(true))
         val res = apiService.getSearchResults(key)
-        val data  = res.body()
-        if (data != null && data.isNotEmpty()) {
-            emit(Result.Success(data))
-        } else {
-            emit(Result.Error("No results found"))
+        emit(Result.Loading(false))
+        if(res.isSuccessful) {
+            val data = res.body()
+            if (!data.isNullOrEmpty()) {
+                emit(Result.Success(data))
+            } else {
+                emit(Result.Empty())
+            }
+        }
+        else{
+            emit(Result.Error(res.message()))
         }
 
     }.catch {

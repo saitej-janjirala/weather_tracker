@@ -14,7 +14,6 @@ import dagger.hilt.android.qualifiers.ApplicationContext
 import dagger.hilt.components.SingletonComponent
 import okhttp3.Interceptor
 import okhttp3.OkHttpClient
-import okhttp3.Response
 import okhttp3.logging.HttpLoggingInterceptor
 import retrofit2.Retrofit
 import retrofit2.converter.moshi.MoshiConverterFactory
@@ -31,16 +30,19 @@ object AppModule {
             val request = chain.request()
             val url = request.url
             val newUrl = url.newBuilder()
-                .addQueryParameter("Key",BuildConfig.API_KEY)
+                .addQueryParameter("key",BuildConfig.API_KEY)
                 .build()
             val newRequest = request.newBuilder()
                 .url(newUrl)
                 .build()
             chain.proceed(newRequest)
         }
-        val logging = HttpLoggingInterceptor()
-        logging.level = HttpLoggingInterceptor.Level.BODY
+        val loggingInterceptor = HttpLoggingInterceptor().apply {
+            level = HttpLoggingInterceptor.Level.BODY
+        }
+
         return OkHttpClient.Builder()
+            .addInterceptor(loggingInterceptor)
             .addInterceptor(interceptor)
             .addInterceptor(InternetInterceptor(context))
             .build()
